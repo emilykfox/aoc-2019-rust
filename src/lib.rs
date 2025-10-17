@@ -42,7 +42,7 @@ impl Interpreter {
         self.input = None;
     }
 
-    pub fn get_outputs(&self) -> &Vec<isize> {
+    pub fn prev_outputs(&self) -> &Vec<isize> {
         &self.prev_outputs
     }
 
@@ -76,7 +76,7 @@ impl Interpreter {
                 }
                 3 => {
                     let target = self.memory[instr_ptr + 1] as usize;
-                    self.memory[target] = self.input.unwrap();
+                    self.memory[target] = self.input.expect("No input set!");
 
                     instr_ptr += 2;
                 }
@@ -169,11 +169,11 @@ mod test {
     }
 
     #[test]
-    fn day03() {
+    fn day05() {
         let mut interpreter = Interpreter::new("3,0,4,0,99");
         interpreter.set_input(3659);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![3659]);
+        assert_eq!(*interpreter.prev_outputs(), vec![3659]);
 
         let mut interpreter = Interpreter::new("1002,4,3,4,33");
         interpreter.run();
@@ -186,62 +186,62 @@ mod test {
         let mut interpreter = Interpreter::new("3,9,8,9,10,9,4,9,99,-1,8");
         interpreter.set_input(8);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1]);
         interpreter.set_input(9);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![0]);
+        assert_eq!(*interpreter.prev_outputs(), vec![0]);
 
         let mut interpreter = Interpreter::new("3,9,7,9,10,9,4,9,99,-1,8");
         interpreter.set_input(7);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1]);
         interpreter.set_input(8);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![0]);
+        assert_eq!(*interpreter.prev_outputs(), vec![0]);
 
         let mut interpreter = Interpreter::new("3,3,1108,-1,8,3,4,3,99");
         interpreter.set_input(8);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1]);
         interpreter.set_input(9);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![0]);
+        assert_eq!(*interpreter.prev_outputs(), vec![0]);
 
         let mut interpreter = Interpreter::new("3,3,1107,-1,8,3,4,3,99");
         interpreter.set_input(7);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1]);
         interpreter.set_input(8);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![0]);
+        assert_eq!(*interpreter.prev_outputs(), vec![0]);
 
         let mut interpreter = Interpreter::new("3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9");
         interpreter.set_input(0);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![0]);
+        assert_eq!(*interpreter.prev_outputs(), vec![0]);
         interpreter.set_input(1);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1]);
 
         let mut interpreter = Interpreter::new("3,3,1105,-1,9,1101,0,0,12,4,12,99,1");
         interpreter.set_input(0);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![0]);
+        assert_eq!(*interpreter.prev_outputs(), vec![0]);
         interpreter.set_input(1);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1]);
 
         let mut interpreter = Interpreter::new(
             "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99",
         );
         interpreter.set_input(6);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![999]);
+        assert_eq!(*interpreter.prev_outputs(), vec![999]);
         interpreter.set_input(8);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1000]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1000]);
         interpreter.set_input(10);
         interpreter.run();
-        assert_eq!(*interpreter.get_outputs(), vec![1001]);
+        assert_eq!(*interpreter.prev_outputs(), vec![1001]);
     }
 }
