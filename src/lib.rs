@@ -1,5 +1,5 @@
 pub struct Interpreter {
-    initial_state: Vec<isize>,
+    program: Vec<isize>,
     noun: Option<isize>,
     verb: Option<isize>,
     input: Option<isize>,
@@ -10,12 +10,12 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn new(program: &str) -> Self {
-        let initial_state = program
+        let program = program
             .split(',')
             .map(|int| int.parse::<isize>().expect(int))
             .collect::<Vec<isize>>();
         Interpreter {
-            initial_state,
+            program,
             noun: None,
             verb: None,
             input: None,
@@ -42,13 +42,17 @@ impl Interpreter {
         self.input = None;
     }
 
+    pub fn memory(&self) -> &Vec<isize> {
+        &self.memory
+    }
+
     pub fn prev_outputs(&self) -> &Vec<isize> {
         &self.prev_outputs
     }
 
-    // Returns the final value at address 0.
-    pub fn run(&mut self) -> isize {
-        self.memory = self.initial_state.clone();
+    // Loads the program passed to `new` into memory and executes it.
+    pub fn run(&mut self) {
+        self.memory = self.program.clone();
         self.prev_outputs = Vec::new();
 
         if let Some(noun) = self.noun {
@@ -114,7 +118,7 @@ impl Interpreter {
                     self.memory[target] = (parameters[0] == parameters[1]) as isize;
                     instr_ptr += 4;
                 }
-                99 => return self.memory[0],
+                99 => return,
                 _ => panic!("Bad opcode {}!", self.memory[instr_ptr]),
             };
         }
@@ -145,19 +149,24 @@ mod test {
     #[test]
     fn day02() {
         let mut interpreter = Interpreter::new("1,9,10,3,2,3,11,0,99,30,40,50");
-        assert_eq!(interpreter.run(), 3500);
+        interpreter.run();
+        assert_eq!(interpreter.memory()[0], 3500);
 
         let mut interpreter = Interpreter::new("1,0,0,0,99");
-        assert_eq!(interpreter.run(), 2);
+        interpreter.run();
+        assert_eq!(interpreter.memory()[0], 2);
 
         let mut interpreter = Interpreter::new("2,3,0,3,99");
-        assert_eq!(interpreter.run(), 2);
+        interpreter.run();
+        assert_eq!(interpreter.memory()[0], 2);
 
         let mut interpreter = Interpreter::new("2,4,4,5,99,0");
-        assert_eq!(interpreter.run(), 2);
+        interpreter.run();
+        assert_eq!(interpreter.memory()[0], 2);
 
         let mut interpreter = Interpreter::new("1,1,1,4,99,5,6,0,99");
-        assert_eq!(interpreter.run(), 30);
+        interpreter.run();
+        assert_eq!(interpreter.memory()[0], 30);
     }
 
     #[test]
