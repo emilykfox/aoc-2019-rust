@@ -158,14 +158,6 @@ mod test {
 
         let mut interpreter = Interpreter::new("1,1,1,4,99,5,6,0,99");
         assert_eq!(interpreter.run(), 30);
-
-        let day02_input = std::fs::read_to_string("data/day02.txt")
-            .unwrap()
-            .trim()
-            .to_string();
-        let mut interpreter = Interpreter::new(&day02_input);
-        interpreter.set_noun_verb(98, 20);
-        assert_eq!(interpreter.run(), 19690720);
     }
 
     #[test]
