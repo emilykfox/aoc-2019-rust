@@ -1,3 +1,6 @@
+pub mod memory;
+
+use memory::Memory;
 use std::collections::VecDeque;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -13,7 +16,7 @@ pub struct Interpreter {
     verb: Option<isize>,
     inputs: VecDeque<isize>,
 
-    memory: Vec<isize>,
+    memory: Memory,
     relative_base: isize,
     fresh_start: bool,
     instr_ptr: usize,
@@ -31,7 +34,7 @@ impl Interpreter {
             noun: None,
             verb: None,
             inputs: VecDeque::new(),
-            memory: Vec::new(),
+            memory: Memory::new(),
             relative_base: 0,
             fresh_start: true,
             instr_ptr: 0,
@@ -57,7 +60,7 @@ impl Interpreter {
         self.inputs.clear();
     }
 
-    pub fn memory(&self) -> &Vec<isize> {
+    pub fn memory(&self) -> &Memory {
         &self.memory
     }
 
@@ -73,7 +76,7 @@ impl Interpreter {
     // Loads the program passed to `new` into memory and executes it.
     pub fn execute(&mut self) -> ExitReason {
         if self.fresh_start {
-            self.memory = self.program.clone();
+            self.memory.load(&self.program);
 
             self.relative_base = 0;
 
@@ -381,5 +384,10 @@ mod test {
         let mut interpreter = Interpreter::new("104,1125899906842624,99");
         interpreter.execute();
         assert_eq!(interpreter.get_output().unwrap(), 1125899906842624);
+
+        let mut interpreter =
+            Interpreter::new("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
+        interpreter.execute();
+        assert_eq!(*interpreter.drain_outputs(), interpreter.program);
     }
 }
