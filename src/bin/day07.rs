@@ -46,7 +46,7 @@ fn main() {
                 amplifier.insert_input(next_signal);
                 let exit_reason = amplifier.execute();
                 next_signal = amplifier.get_output().unwrap();
-                if exit_reason == ExitReason::Reached99 && current_amplifier == 4 {
+                if exit_reason == ExitReason::NormalExit && current_amplifier == 4 {
                     break 'amplifiers;
                 }
                 current_amplifier = (current_amplifier + 1) % 5;
