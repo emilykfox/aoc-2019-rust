@@ -75,6 +75,8 @@ impl Interpreter {
         if self.fresh_start {
             self.memory = self.program.clone();
 
+            self.relative_base = 0;
+
             if let Some(noun) = self.noun {
                 self.memory[1] = noun;
             }
@@ -88,24 +90,24 @@ impl Interpreter {
         loop {
             match self.memory[self.instr_ptr] % 100 {
                 1 => {
-                    let locations = self.parameter_locations(self.instr_ptr, 2);
-                    let target = self.memory[self.instr_ptr + 3] as usize;
-                    self.memory[target] = self.memory[locations[0]] + self.memory[locations[1]];
+                    let locations = self.parameter_locations(self.instr_ptr, 3);
+                    self.memory[locations[2]] =
+                        self.memory[locations[0]] + self.memory[locations[1]];
 
                     self.instr_ptr += 4;
                 }
                 2 => {
-                    let locations = self.parameter_locations(self.instr_ptr, 2);
-                    let target = self.memory[self.instr_ptr + 3] as usize;
-                    self.memory[target] = self.memory[locations[0]] * self.memory[locations[1]];
+                    let locations = self.parameter_locations(self.instr_ptr, 3);
+                    self.memory[locations[2]] =
+                        self.memory[locations[0]] * self.memory[locations[1]];
 
                     self.instr_ptr += 4;
                 }
                 3 => {
-                    let target = self.memory[self.instr_ptr + 1] as usize;
+                    let locations = self.parameter_locations(self.instr_ptr, 1);
                     let input = self.inputs.pop_front();
                     if let Some(input) = input {
-                        self.memory[target] = input;
+                        self.memory[locations[0]] = input;
 
                         self.instr_ptr += 2;
                     } else {
@@ -135,18 +137,21 @@ impl Interpreter {
                     }
                 }
                 7 => {
-                    let locations = self.parameter_locations(self.instr_ptr, 2);
-                    let target = self.memory[self.instr_ptr + 3] as usize;
-                    self.memory[target] =
+                    let locations = self.parameter_locations(self.instr_ptr, 3);
+                    self.memory[locations[2]] =
                         (self.memory[locations[0]] < self.memory[locations[1]]) as isize;
                     self.instr_ptr += 4;
                 }
                 8 => {
-                    let locations = self.parameter_locations(self.instr_ptr, 2);
-                    let target = self.memory[self.instr_ptr + 3] as usize;
-                    self.memory[target] =
+                    let locations = self.parameter_locations(self.instr_ptr, 3);
+                    self.memory[locations[2]] =
                         (self.memory[locations[0]] == self.memory[locations[1]]) as isize;
                     self.instr_ptr += 4;
+                }
+                9 => {
+                    let locations = self.parameter_locations(self.instr_ptr, 1);
+                    self.relative_base += self.memory[locations[0]];
+                    self.instr_ptr += 2;
                 }
                 99 => {
                     self.fresh_start = true;
@@ -163,12 +168,13 @@ impl Interpreter {
         let mut moded_opcode = self.memory[address] / 10;
         for parameter_number in 1..=count {
             moded_opcode /= 10;
-            let parameter = match moded_opcode % 10 {
+            let location = match moded_opcode % 10 {
                 0 => self.memory[address + parameter_number] as usize,
                 1 => address + parameter_number,
+                2 => (self.relative_base + self.memory[address + parameter_number]) as usize,
                 _ => panic!("Bad mode for opcode {}!", self.memory[address]),
             };
-            locations.push(parameter);
+            locations.push(location);
         }
 
         locations
@@ -364,5 +370,16 @@ mod test {
             current_amplifier = (current_amplifier + 1) % 5;
         }
         assert_eq!(next_signal, 18216);
+    }
+
+    #[test]
+    fn day09() {
+        let mut interpreter = Interpreter::new("1102,34915192,34915192,7,4,7,99,0");
+        interpreter.execute();
+        assert_eq!(interpreter.get_output().unwrap(), 1_219_070_632_396_864);
+
+        let mut interpreter = Interpreter::new("104,1125899906842624,99");
+        interpreter.execute();
+        assert_eq!(interpreter.get_output().unwrap(), 1125899906842624);
     }
 }
