@@ -29,7 +29,7 @@ impl Interpreter {
             .split(',')
             .map(|int| int.parse::<isize>().expect(int))
             .collect::<Vec<isize>>();
-        Interpreter {
+        let mut interpreter = Interpreter {
             program,
             noun: None,
             verb: None,
@@ -39,7 +39,9 @@ impl Interpreter {
             fresh_start: true,
             instr_ptr: 0,
             outputs: VecDeque::new(),
-        }
+        };
+        interpreter.reset();
+        interpreter
     }
 
     pub fn set_noun_verb(&mut self, noun: isize, verb: isize) {
@@ -64,6 +66,10 @@ impl Interpreter {
         &self.memory
     }
 
+    pub fn memory_mut(&mut self) -> &mut Memory {
+        &mut self.memory
+    }
+
     pub fn get_output(&mut self) -> Option<isize> {
         self.outputs.pop_front()
     }
@@ -73,22 +79,26 @@ impl Interpreter {
         outputs.into_iter().collect::<Vec<_>>()
     }
 
+    pub fn reset(&mut self) {
+        self.memory.load(&self.program);
+
+        self.relative_base = 0;
+
+        if let Some(noun) = self.noun {
+            self.memory[1] = noun;
+        }
+        if let Some(verb) = self.verb {
+            self.memory[2] = verb;
+        }
+
+        self.instr_ptr = 0;
+        self.fresh_start = false;
+    }
+
     // Loads the program passed to `new` into memory and executes it.
     pub fn execute(&mut self) -> ExitReason {
         if self.fresh_start {
-            self.memory.load(&self.program);
-
-            self.relative_base = 0;
-
-            if let Some(noun) = self.noun {
-                self.memory[1] = noun;
-            }
-            if let Some(verb) = self.verb {
-                self.memory[2] = verb;
-            }
-
-            self.instr_ptr = 0;
-            self.fresh_start = false;
+            self.reset();
         }
         loop {
             match self.memory[self.instr_ptr] % 100 {
