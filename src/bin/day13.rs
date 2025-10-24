@@ -1,7 +1,7 @@
 use core::time;
 use std::{collections::HashMap, io::stdin, thread};
 
-use aoc_2019_rust::{ExitReason, intcode};
+use aoc_2019_rust::intcode;
 
 fn main() {
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
