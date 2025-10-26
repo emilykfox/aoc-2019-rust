@@ -11,24 +11,24 @@ pub enum ExitReason {
 
 #[derive(Clone)]
 pub struct Interpreter {
-    program: Vec<isize>,
-    noun: Option<isize>,
-    verb: Option<isize>,
-    inputs: VecDeque<isize>,
+    program: Vec<i64>,
+    noun: Option<i64>,
+    verb: Option<i64>,
+    inputs: VecDeque<i64>,
 
     memory: Memory,
-    relative_base: isize,
+    relative_base: i64,
     fresh_start: bool,
     instr_ptr: usize,
-    outputs: VecDeque<isize>,
+    outputs: VecDeque<i64>,
 }
 
 impl Interpreter {
     pub fn new(program: &str) -> Self {
         let program = program
             .split(',')
-            .map(|int| int.parse::<isize>().expect(int))
-            .collect::<Vec<isize>>();
+            .map(|int| int.parse::<i64>().expect(int))
+            .collect::<Vec<i64>>();
         let mut interpreter = Interpreter {
             program,
             noun: None,
@@ -44,7 +44,7 @@ impl Interpreter {
         interpreter
     }
 
-    pub fn set_noun_verb(&mut self, noun: isize, verb: isize) {
+    pub fn set_noun_verb(&mut self, noun: i64, verb: i64) {
         self.noun = Some(noun);
         self.verb = Some(verb);
     }
@@ -54,7 +54,7 @@ impl Interpreter {
         self.verb = None;
     }
 
-    pub fn insert_input(&mut self, input: isize) {
+    pub fn insert_input(&mut self, input: i64) {
         self.inputs.push_back(input);
     }
 
@@ -70,11 +70,11 @@ impl Interpreter {
         &mut self.memory
     }
 
-    pub fn get_output(&mut self) -> Option<isize> {
+    pub fn get_output(&mut self) -> Option<i64> {
         self.outputs.pop_front()
     }
 
-    pub fn drain_outputs(&mut self) -> Vec<isize> {
+    pub fn drain_outputs(&mut self) -> Vec<i64> {
         let outputs = std::mem::take(&mut self.outputs);
         outputs.into_iter().collect::<Vec<_>>()
     }
@@ -152,13 +152,13 @@ impl Interpreter {
                 7 => {
                     let locations = self.parameter_locations(self.instr_ptr, 3);
                     self.memory[locations[2]] =
-                        (self.memory[locations[0]] < self.memory[locations[1]]) as isize;
+                        (self.memory[locations[0]] < self.memory[locations[1]]) as i64;
                     self.instr_ptr += 4;
                 }
                 8 => {
                     let locations = self.parameter_locations(self.instr_ptr, 3);
                     self.memory[locations[2]] =
-                        (self.memory[locations[0]] == self.memory[locations[1]]) as isize;
+                        (self.memory[locations[0]] == self.memory[locations[1]]) as i64;
                     self.instr_ptr += 4;
                 }
                 9 => {

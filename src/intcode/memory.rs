@@ -5,7 +5,7 @@ use std::{
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct Memory {
-    table: HashMap<usize, isize>,
+    table: HashMap<usize, i64>,
 }
 
 impl Memory {
@@ -15,7 +15,7 @@ impl Memory {
         }
     }
 
-    pub fn load(&mut self, program: &[isize]) {
+    pub fn load(&mut self, program: &[i64]) {
         self.table = program
             .iter()
             .copied()
@@ -25,7 +25,7 @@ impl Memory {
 }
 
 impl Index<usize> for Memory {
-    type Output = isize;
+    type Output = i64;
 
     fn index(&self, index: usize) -> &Self::Output {
         self.table.get(&index).unwrap_or(&0)
